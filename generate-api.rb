@@ -37,34 +37,17 @@ class Jar
   end
 end
 
-def repoBuild
-  `rm -rf dart-openapi-maven`
-  `git clone git@github.com:vishna/dart-openapi-maven.git`
-  `cd dart-openapi-maven && git checkout anyof_support`
-  `cd dart-openapi-maven && mvn package`
-  `cp dart-openapi-maven/target/openapi-dart-generator-4.3-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
-  `rm -rf dart-openapi-maven`
-end
+openapi = Jar.new("org.openapitools", "openapi-generator-cli", "5.1.0")
 
-dartgen = Jar.new("com.bluetrainsoftware.maven", "openapi-dart-generator", "4.2")
-openapi = Jar.new("org.openapitools", "openapi-generator-cli", "5.0.0")
-
-dartgen.ensure
 openapi.ensure
 
-openapi_cli = "java -cp #{openapi.localPath}:#{dartgen.localPath} org.openapitools.codegen.OpenAPIGenerator"
-
-# pass dev parameter to checkout repo and build jar locally
-if ARGV[0] == "dev" then
-  repoBuild()
-  openapi_cli = "java -cp #{openapi.localPath}:#{JAR_CACHE_DIR}/dev.jar org.openapitools.codegen.OpenAPIGenerator"
-end
+openapi_cli = "java -jar #{openapi.localPath}"
 
 # cleanup
 `rm -rf #{TARGET_DIR}`
 
 # generate
-puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME}"`
+puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart-dio-next --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME}"`
 
 # force update & pretty formatting
 puts `cd #{TARGET_DIR} && flutter pub get`
