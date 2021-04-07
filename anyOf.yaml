@@ -18,6 +18,8 @@ components:
     fruit_basket:
       title: fruit
       type: object
+      required:
+        - owner
       properties:
         owner:
           type: string

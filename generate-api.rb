@@ -40,14 +40,18 @@ end
 def repoBuild
   `rm -rf dart-openapi-maven`
   `git clone git@github.com:vishna/dart-openapi-maven.git`
-  `cd dart-openapi-maven && git checkout anyof_support`
-  `cd dart-openapi-maven && mvn package`
-  `cp dart-openapi-maven/target/openapi-dart-generator-4.3-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
+  `cd dart-openapi-maven && git checkout anyof_support && mvn package`
+  `cp dart-openapi-maven/target/openapi-dart-generator-5.1-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
   `rm -rf dart-openapi-maven`
 end
 
+def localBuild
+  `cd /Users/vishna/Projects/dart-openapi-maven && mvn package`
+  `cp /Users/vishna/Projects/dart-openapi-maven/target/openapi-dart-generator-5.1-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
+end
+
 dartgen = Jar.new("com.bluetrainsoftware.maven", "openapi-dart-generator", "4.2")
-openapi = Jar.new("org.openapitools", "openapi-generator-cli", "5.0.0")
+openapi = Jar.new("org.openapitools", "openapi-generator-cli", "5.1.0")
 
 dartgen.ensure
 openapi.ensure
@@ -60,12 +64,20 @@ if ARGV[0] == "dev" then
   openapi_cli = "java -cp #{openapi.localPath}:#{JAR_CACHE_DIR}/dev.jar org.openapitools.codegen.OpenAPIGenerator"
 end
 
+# pass local parameter to build with locally edited code
+if ARGV[0] == "local" then
+  localBuild()
+  openapi_cli = "java -cp #{openapi.localPath}:#{JAR_CACHE_DIR}/dev.jar org.openapitools.codegen.OpenAPIGenerator"
+end
+
 # cleanup
 `rm -rf #{TARGET_DIR}`
 
 # generate
-puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME}"`
+puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "nullSafe=true,pubName=#{LIB_NAME}"`
 
 # force update & pretty formatting
 puts `cd #{TARGET_DIR} && flutter pub get`
 puts `dartfmt -w #{TARGET_DIR}`
+
+puts `flutter analyze`
