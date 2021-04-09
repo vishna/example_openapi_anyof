@@ -4,6 +4,7 @@ JAR_CACHE_DIR = ".jarCache"
 OPEN_API_SCHEMA = "anyOf.yaml"
 TARGET_DIR = "generated_lib"
 LIB_NAME= "generated_lib"
+JAR_VERSION = "5.2"
 
 `mkdir -p #{JAR_CACHE_DIR}`
 
@@ -41,13 +42,13 @@ def repoBuild
   `rm -rf dart-openapi-maven`
   `git clone git@github.com:vishna/dart-openapi-maven.git`
   `cd dart-openapi-maven && git checkout anyof_support && mvn package`
-  `cp dart-openapi-maven/target/openapi-dart-generator-5.1-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
+  `cp dart-openapi-maven/target/openapi-dart-generator-#{JAR_VERSION}-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
   `rm -rf dart-openapi-maven`
 end
 
 def localBuild
-  `cd /Users/vishna/Projects/dart-openapi-maven && mvn package`
-  `cp /Users/vishna/Projects/dart-openapi-maven/target/openapi-dart-generator-5.1-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
+  puts `cd /Users/vishna/Projects/dart-openapi-maven && mvn package`
+  `cp /Users/vishna/Projects/dart-openapi-maven/target/openapi-dart-generator-#{JAR_VERSION}-SNAPSHOT.jar #{JAR_CACHE_DIR}/dev.jar`
 end
 
 dartgen = Jar.new("com.bluetrainsoftware.maven", "openapi-dart-generator", "4.2")
@@ -74,7 +75,7 @@ end
 `rm -rf #{TARGET_DIR}`
 
 # generate
-puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "nullSafe=true,pubName=#{LIB_NAME}"`
+puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME}"`
 
 # force update & pretty formatting
 puts `cd #{TARGET_DIR} && flutter pub get`
