@@ -4,7 +4,7 @@ JAR_CACHE_DIR = ".jarCache"
 OPEN_API_SCHEMA = "anyOf.yaml"
 TARGET_DIR = "generated_lib"
 LIB_NAME= "generated_lib"
-JAR_VERSION = "5.2"
+JAR_VERSION = "5.3"
 
 `mkdir -p #{JAR_CACHE_DIR}`
 
@@ -75,7 +75,7 @@ end
 `rm -rf #{TARGET_DIR}`
 
 # generate
-puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME}"`
+puts `#{openapi_cli} generate --enable-post-process-file -i #{OPEN_API_SCHEMA} -g dart2-api --output "#{TARGET_DIR}" --additional-properties "pubName=#{LIB_NAME},nullSafe=true,listAnyOf=true"`
 
 # force update & pretty formatting
 puts `cd #{TARGET_DIR} && flutter pub get`
